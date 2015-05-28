@@ -1,3 +1,9 @@
+"""
+gpl2 by Noisegate aka Marcell Marosvolgyi
+2015
+borrowed a lot from pycodeviewer/ googlecode
+"""
+
 from string import *
 from math import *
 import os
