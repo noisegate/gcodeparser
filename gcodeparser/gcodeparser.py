@@ -100,6 +100,9 @@ class Simulator(object):
         self.geometries = geometries 
         self.surf = surf
 
+        self.color1 = fb.Color(0,0,200,0)
+        self.color2 = fb.Color(200,200,200,0)
+
         self.liftcallback = self.dummycallback
         self.lowercallback = self.dummycallback 
 
@@ -180,13 +183,6 @@ class Simulator(object):
                     err = int(-dy/2)
 
                 go=1
-
-                self.surf.pixelstyle.color = fb.Color(140,140,140,200)
-                self.surf.pixelstyle.style = fb.Styles.solid
-
-                self.surf.pixelstyle.blur=1
-                self.surf.pixelstyle.blurradius=4
-                self.surf.pixelstyle.sigma=2
 
                 while(go):
                     self.surf.point(
@@ -324,18 +320,19 @@ if __name__ == "__main__":
 
         def raisedrill(self):
             print "Please raise mill. Press enter to continue"
+            self.surf.pixelstyle.color = self.color1
             s=raw_input()
 
         def lowerdrill(self):
             print "Please lower mill. Press enter to continue"
+            self.surf.pixelstyle.color = self.color2
             s=raw_input()
     
         def movex(self, dx):
-            print "dx"
+            pass
 
         def movey(self, dy):
-            print "dy"
-
+            pass
 
     sim = Mysim(parser.geometries, surf)
     
