@@ -2,6 +2,7 @@
 gpl2 by Noisegate aka Marcell Marosvolgyi
 2015
 borrowed a lot from pycodeviewer/ googlecode
+development 0.1
 """
 
 from string import *
