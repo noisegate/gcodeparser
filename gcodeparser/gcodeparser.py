@@ -96,21 +96,23 @@ class Geometries(object):
 
 class Simulator(object):
      
-    def __init__(self, geometries):
+    def __init__(self, geometries, surf):
         self.geometries = geometries 
-        self.msurf = fb.Surface()
-        self.surf = fb.Surface((800,800),(200,200))
+        self.surf = surf
 
         self.liftcallback = self.dummycallback
         self.lowercallback = self.dummycallback 
 
     def redraw(self):
         self.surf.clear()
-        self.surf.rect((0.0, 0.0),(1.0,1.0))
         self.surf.pixelstyle.color = fb.Color(140,140,140,200)
-        self.surf.pixelstyle.blur=0
-        self.surf.pixelstyle.blurradius=7
+        self.surf.pixelstyle.style = fb.Styles.solid
+
+        self.surf.pixelstyle.blur=1
+        self.surf.pixelstyle.blurradius=2
         self.surf.pixelstyle.sigma=2
+ 
+        self.surf.rect((0.0, 0.0),(1.0,1.0))
 
     def dummycallback(self):
         pass
@@ -120,11 +122,29 @@ class Simulator(object):
         return (point.x/self.geometries.xtent+0.5, point.y/self.geometries.ytent+0.5)
 
     def draw(self):
+        self.surf.clear()
+        self.surf.pixelstyle.color = fb.Color(140,0,0,200)
+        self.surf.pixelstyle.style = fb.Styles.dashed
+        self.surf.pixelstyle.blur=0
+        self.surf.pixelstyle.blurradius=2
+        self.surf.pixelstyle.sigma=2
           
         for geometry in self.geometries.geometries :
             if isinstance(geometry, Line):
                 self.surf.line(self.trafo(geometry.point1), self.trafo(geometry.point2))
         self.surf.update()     
+
+    def raisedrill(self):
+        pass
+
+    def lowerdrill(self):
+        pass
+
+    def movex(self, dx):
+        pass
+
+    def movey(self, dy):
+        pass
 
     def sim(self):
         oldz=0
@@ -138,10 +158,10 @@ class Simulator(object):
                 y0 = int(X0.y*100)
                 y1 = int(X1.y*100)
                 if (X1.z > oldz):
-                    self.liftcallback()
+                    self.raisedrill()
                     oldz = X1.z
                 if (X1.z < oldz):
-                    self.lowercallback()
+                    self.lowerdrill()
                     oldz = X1.z
                 #bressenham's
                 dx = abs(x1-x0)
@@ -160,8 +180,15 @@ class Simulator(object):
                     err = int(-dy/2)
 
                 go=1
+
+                self.surf.pixelstyle.color = fb.Color(140,140,140,200)
+                self.surf.pixelstyle.style = fb.Styles.solid
+
+                self.surf.pixelstyle.blur=1
+                self.surf.pixelstyle.blurradius=4
+                self.surf.pixelstyle.sigma=2
+
                 while(go):
-                    self.redraw()
                     self.surf.point(
                                     (x0/100.0/self.geometries.xtent+0.5, 
                                      y0/100.0/self.geometries.ytent+0.5)
@@ -173,9 +200,11 @@ class Simulator(object):
                     if (e2 > -dx):
                         err -= dy
                         x0 += sx
+                        self.movex(sx)
                     if (e2 < dy):
                         err += dx
                         y0 += sy
+                        self.movey(dx)
 
                     self.surf.update()
                     time.sleep(0.001)
@@ -285,19 +314,31 @@ class Parse(object):
                self.geometries.statistics()
 
 if __name__ == "__main__":
-    def liftcallback():
-        print "Please raise mill. Press enter to continue"
-        s=raw_input()
-        
-    def lowercallback():
-        print "Please lower mill. Press enter to continue"
-        s=raw_input()
+    main = fb.Surface()
+    surf = fb.Surface((800,400),(200,200))
 
     parser = Parse('./spacer.ngc')
     parser.parse()
-    sim = Simulator(parser.geometries)
-    sim.liftcallback = liftcallback
-    sim.lowercallback = lowercallback 
-    #sim.draw()
+    
+    class Mysim(Simulator):
+
+        def raisedrill(self):
+            print "Please raise mill. Press enter to continue"
+            s=raw_input()
+
+        def lowerdrill(self):
+            print "Please lower mill. Press enter to continue"
+            s=raw_input()
+    
+        def movex(self, dx):
+            print "dx"
+
+        def movey(self, dy):
+            print "dy"
+
+
+    sim = Mysim(parser.geometries, surf)
+    
+    sim.draw()
     sim.sim()
 
