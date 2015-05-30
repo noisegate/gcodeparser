@@ -106,6 +106,10 @@ class Simulator(object):
         self.liftcallback = self.dummycallback
         self.lowercallback = self.dummycallback 
 
+        self.zoom = 1.0
+        self.offsetx = 0.5
+        self.offsety = 0.5
+
     def redraw(self):
         self.surf.clear()
         self.surf.pixelstyle.color = fb.Color(250,250,250,0)
@@ -120,8 +124,11 @@ class Simulator(object):
     def dummycallback(self):
         pass
 
-    def trafo(self, point):
-        return (point.x/self.geometries.xtent/2+0.5, -point.y/self.geometries.ytent/2+0.5)
+    def trafox(self, x):
+        return self.zoom*x/self.geometries.xtent/2+self.offsetx
+
+    def trafoy(self, x):
+        return self.zoom*x/self.geometries.xtent/2+self.offsety
 
     def draw(self):
         self.redraw()
@@ -133,7 +140,8 @@ class Simulator(object):
           
         for geometry in self.geometries.geometries :
             if isinstance(geometry, Line):
-                self.surf.line(self.trafo(geometry.point1), self.trafo(geometry.point2))
+                self.surf.line( (self.trafox(geometry.point1.x), -self.trafoy(geometry.point1.y)), 
+                                (self.trafox(geometry.point2.x), -self.trafoy(geometry.point2.y)))
         self.surf.update()     
 
     def raisedrill(self):
@@ -161,10 +169,10 @@ class Simulator(object):
                 #self.surf.line(self.trafo(geometry.point1), self.trafo(geometry.point2))
                 X0 = geometry.point1
                 X1 = geometry.point2
-                x0 = int(X0.x*100)
-                x1 = int(X1.x*100)
-                y0 = int(X0.y*100)
-                y1 = int(X1.y*100)
+                x0 = int(X0.x*10)
+                x1 = int(X1.x*10)
+                y0 = int(X0.y*10)
+                y1 = int(X1.y*10)
                 if (X1.z > oldz):
                     self.raisedrill()
                     oldz = X1.z
@@ -191,8 +199,8 @@ class Simulator(object):
 
                 while(go):
                     self.surf.point(
-                                    (x0/100.0/self.geometries.xtent/2+0.5, 
-                                     -y0/100.0/self.geometries.ytent/2+0.5)
+                                    (self.trafox(x0/10.0), 
+                                    -self.trafoy(y0/10.0))
                                    )
                     #go=0
                     if (x0==x1 and y1==y0): 
@@ -212,7 +220,8 @@ class Simulator(object):
                     self.surf.update()
                     time.sleep(0.001)
                 
-                self.pause()
+                    if (self.pause()==-1):
+                        break
 
         self.simfinished()
 
