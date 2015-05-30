@@ -96,8 +96,8 @@ class Geometries(object):
 
 class Simulator(object):
      
-    def __init__(self, geometries, surf):
-        self.geometries = geometries 
+    def __init__(self, surf):
+        self.geometries = None#geometries 
         self.surf = surf
 
         self.color1 = fb.Color(0,0,200,0)
@@ -126,7 +126,7 @@ class Simulator(object):
 
     def draw(self):
         self.surf.clear()
-        self.surf.pixelstyle.color = fb.Color(140,0,0,200)
+        self.surf.pixelstyle.color = fb.Color(140,0,0,0)
         self.surf.pixelstyle.style = fb.Styles.dashed
         self.surf.pixelstyle.blur=0
         self.surf.pixelstyle.blurradius=2
@@ -141,6 +141,12 @@ class Simulator(object):
         pass
 
     def lowerdrill(self):
+        pass
+
+    def simfinished(self):
+        pass
+
+    def pause(self):
         pass
 
     def movex(self, dx):
@@ -204,11 +210,15 @@ class Simulator(object):
 
                     self.surf.update()
                     time.sleep(0.001)
+                
+                self.pause()
+
+        self.simfinished()
 
 class Parse(object):
 
-     def __init__(self, filename):
-          self.filename = filename
+     def __init__(self):
+          self.filename = None
           self.geometries = Geometries()
           self.no_points = 0
 
