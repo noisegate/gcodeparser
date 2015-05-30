@@ -13,7 +13,7 @@ import re
 import fbpy.fb as fb
 import time
 
-HUGE = 10000
+HUGE = 100000
 
 class Point(object):
      
@@ -108,7 +108,7 @@ class Simulator(object):
 
     def redraw(self):
         self.surf.clear()
-        self.surf.pixelstyle.color = fb.Color(140,140,140,200)
+        self.surf.pixelstyle.color = fb.Color(250,250,250,0)
         self.surf.pixelstyle.style = fb.Styles.solid
 
         self.surf.pixelstyle.blur=1
@@ -121,11 +121,10 @@ class Simulator(object):
         pass
 
     def trafo(self, point):
-        
-        return (point.x/self.geometries.xtent+0.5, point.y/self.geometries.ytent+0.5)
+        return (point.x/self.geometries.xtent/2+0.5, -point.y/self.geometries.ytent/2+0.5)
 
     def draw(self):
-        self.surf.clear()
+        self.redraw()
         self.surf.pixelstyle.color = fb.Color(140,0,0,0)
         self.surf.pixelstyle.style = fb.Styles.dashed
         self.surf.pixelstyle.blur=0
@@ -155,7 +154,7 @@ class Simulator(object):
     def movey(self, dy):
         pass
 
-    def sim(self):
+    def sim(self, mode):
         oldz=0
         for geometry in self.geometries.geometries :
             if isinstance(geometry, Line):
@@ -192,8 +191,8 @@ class Simulator(object):
 
                 while(go):
                     self.surf.point(
-                                    (x0/100.0/self.geometries.xtent+0.5, 
-                                     y0/100.0/self.geometries.ytent+0.5)
+                                    (x0/100.0/self.geometries.xtent/2+0.5, 
+                                     -y0/100.0/self.geometries.ytent/2+0.5)
                                    )
                     #go=0
                     if (x0==x1 and y1==y0): 
@@ -202,11 +201,13 @@ class Simulator(object):
                     if (e2 > -dx):
                         err -= dy
                         x0 += sx
-                        self.movex(sx)
+                        if (mode==1):
+                            self.movex(sx)
                     if (e2 < dy):
                         err += dx
                         y0 += sy
-                        self.movey(dx)
+                        if (mode==1):
+                            self.movey(sy)
 
                     self.surf.update()
                     time.sleep(0.001)
