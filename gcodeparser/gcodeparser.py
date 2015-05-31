@@ -169,10 +169,10 @@ class Simulator(object):
                 #self.surf.line(self.trafo(geometry.point1), self.trafo(geometry.point2))
                 X0 = geometry.point1
                 X1 = geometry.point2
-                x0 = int(X0.x*10)
-                x1 = int(X1.x*10)
-                y0 = int(X0.y*10)
-                y1 = int(X1.y*10)
+                x0 = int(X0.x*30)
+                x1 = int(X1.x*30)
+                y0 = int(X0.y*30)
+                y1 = int(X1.y*30)
                 if (X1.z > oldz):
                     self.raisedrill()
                     oldz = X1.z
@@ -199,8 +199,8 @@ class Simulator(object):
 
                 while(go):
                     self.surf.point(
-                                    (self.trafox(x0/10.0), 
-                                    -self.trafoy(y0/10.0))
+                                    (self.trafox(x0/30.0), 
+                                    -self.trafoy(y0/30.0))
                                    )
                     #go=0
                     if (x0==x1 and y1==y0): 
