@@ -216,7 +216,6 @@ class Simulator(object):
                         self.movey(sy, y0/30.0, mode)
 
                     self.surf.update()
-                    time.sleep(0.001)
                 
                     if (self.pause()==-1):
                         break
