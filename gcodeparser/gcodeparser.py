@@ -156,10 +156,10 @@ class Simulator(object):
     def pause(self):
         pass
 
-    def movex(self, dx):
+    def movex(self, dx, mode):
         pass
 
-    def movey(self, dy):
+    def movey(self, dy, mode):
         pass
 
     def sim(self, mode):
@@ -209,13 +209,11 @@ class Simulator(object):
                     if (e2 > -dx):
                         err -= dy
                         x0 += sx
-                        if (mode==1):
-                            self.movex(sx)
+                        self.movex(sx, mode)
                     if (e2 < dy):
                         err += dx
                         y0 += sy
-                        if (mode==1):
-                            self.movey(sy)
+                        self.movey(sy, mode)
 
                     self.surf.update()
                     time.sleep(0.001)
