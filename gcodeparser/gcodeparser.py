@@ -215,7 +215,7 @@ class Simulator(object):
                         y0 += sy
                         self.movey(sy, y0/30.0, mode)
 
-                    self.surf.update()
+                    #self.surf.update()
                 
                     if (self.pause()==-1):
                         break
