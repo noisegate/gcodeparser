@@ -12,6 +12,7 @@ import sys
 import re
 import fbpy.fb as fb
 import time
+import numpy
 
 HUGE = 100000
 
@@ -27,12 +28,13 @@ class Geom(object):
 
 class Line(object):
 
-    def __init__(self, point1, point2, speed, no):
+    def __init__(self, point1, point2, speed, no, gcode):
         self.point1 = point1
         self.point2 = point2
         self.speed = speed
         self.no = no
         self.type = "line"
+        self.gcode = gcode
 
 class Arc(object):
     
@@ -140,8 +142,16 @@ class Simulator(object):
           
         for geometry in self.geometries.geometries :
             if isinstance(geometry, Line):
+                self.surf.pixelstyle.color = fb.Color(140,0,0,0)
+
+                self.surf.pixelstyle.style = fb.Styles.dashed
                 self.surf.line( (self.trafox(geometry.point1.x), -self.trafoy(geometry.point1.y)), 
                                 (self.trafox(geometry.point2.x), -self.trafoy(geometry.point2.y)))
+                self.surf.pixelstyle.style = fb.Styles.solid
+                self.surf.pixelstyle.color = fb.Color(140,140,140,0)
+
+                self.surf.arc(  (self.trafox(geometry.point1.x), -self.trafoy(geometry.point1.y)),2,2,0,10,10)
+
         self.surf.update()     
 
     def raisedrill(self):
@@ -154,6 +164,9 @@ class Simulator(object):
         pass
 
     def pause(self):
+        return 1
+
+    def talkback(self, gcstring):
         pass
 
     def movex(self, dx, x, mode):
@@ -164,7 +177,13 @@ class Simulator(object):
 
     def sim(self, mode):
         oldz=0
-        for geometry in self.geometries.geometries :
+        gosim=1
+        linecounter = 0
+        maxlines = len(self.geometries.geometries)
+
+        while((gosim==1) and (linecounter<maxlines)):
+        #for geometry in self.geometries.geometries :
+            geometry = self.geometries.geometries[linecounter]
             if isinstance(geometry, Line):
                 #self.surf.line(self.trafo(geometry.point1), self.trafo(geometry.point2))
                 X0 = geometry.point1
@@ -216,9 +235,16 @@ class Simulator(object):
                         self.movey(sy, y0/30.0, mode)
 
                     self.surf.update()
-                
-                    if (self.pause()==-1):
-                        break
+                    gosim = self.pause()
+                    if (gosim==0):
+                        go=0
+                    startline = linecounter-3
+                    endline = linecounter+3
+                    if startline<0: startline = 0
+                    if endline>len(self.geometries.geometries): endline = len(self.geometries.geometries)
+                    self.talkback("".join(["{0:>4}: {1}".format(i,self.geometries.geometries[i].gcode) for i in range(startline,endline)]))            
+
+            linecounter += 1
 
         self.simfinished()
 
@@ -276,7 +302,7 @@ class Parse(object):
                          if(flag):
                               point1 = Point(pre_x,pre_y,pre_z)
                               point2 = Point(x,y,z)
-                              self.geometries.add(Line(point1, point2, s, l))
+                              self.geometries.add(Line(point1, point2, s, l, gcode))
                               self.no_points+=1
                               #print "{0:<6} {1:<6}".format(x,y)
                     elif(style == 2 or style == 3):
